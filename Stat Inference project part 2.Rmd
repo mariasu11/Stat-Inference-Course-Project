@@ -1,0 +1,130 @@
+---
+title: "Statistical Inference part 2"
+author: "Asfa Lohani"
+---
+##Overview
+This project aims to analyze the ToothGrowth data in the R datasets package. The data looks at the length of teeth in each of 10 guinea pigs at each of three dose levels of Vitamin C (0.5, 1, and 2 mg) with each of two delivery methods (orange juice or ascorbic acid). We will load the data and perform some basic exploratory analysis. We will then provide a basic summary of the data. Furthermore, we will Use confidence intervals and/or hypothesis tests to compare tooth growth by supp and dose. Lastly, we will state our conclusions and the necessary assumptions we made.
+
+##Basic Exploratory Data Analysis
+Let's load the data and call the str function to get some more information.
+
+```{r load and str}
+data(ToothGrowth)
+str(ToothGrowth)
+```
+
+The three variables are len (tooth length), supp(supplement of orange juice or acorbic acic) and dose (the dose levels .5,1,or2mg).
+Lets look at a quick plot showing the relationship between the supplement and tooth length. (see Appendix: Plot 1 for figure)
+
+```{r ex plot, eval=FALSE}
+library(ggplot2)
+ggplot(aes(x=supp, y=len), data=ToothGrowth) + geom_boxplot(aes(fill=supp))
+```
+
+Let's also look at the relationship between dose and tooth length. (See Appendix: Plot 2 for figure)
+
+```{r ex plot2, eval=FALSE}
+library(ggplot2)
+ggplot(aes(x=as.factor(dose), y=len), data=ToothGrowth) + geom_boxplot(aes(fill=dose)) 
+```
+
+From the first graph, OJ seems to have the greater impact on tooth length as can be seen with the higher mean.  From the second graph it appears that an increased dose results in increased tooth length.
+
+##Basic Summary of data
+A quick summary of the data gives us some more information regarding the mean and quantiles of tooth length.
+
+```{r summ}
+summary(ToothGrowth)
+```
+
+##Use confidence intervals and/or hypothesis tests to compare tooth growth by supp and dose. 
+
+Let's first compare tooth growth (len) by supplement (supp). Our null and alternative hypothesis are:
+Ho: There is no difference in tooth growth depending on the supplement used.
+Ha: There is a difference in tooth growth depending on the supplement used.
+
+Let's perform a t test (See Appendix: ttest len by supp for output) :
+```{r ttest len by supp, eval=FALSE}
+t.test(len~supp,data=ToothGrowth)
+```
+The p-value is greater than .05 and The 95% confidence interval contains zero. This indicates that we cannot reject the null hypothesis and that there is no difference in tooth growth depending on the supplement used. 
+
+Lets take this a little further and test len by supp depending on the the dose levels.  We will subset the dataset for each dose level and compare len by supp.(See Appendix: ttest len by supp at each dose level for output)
+
+```{r lenbysupp at each dose, eval=FALSE}
+dose.5 <- ToothGrowth[ToothGrowth$dose==0.5,]
+  t.test(dose.5$len ~ dose.5$supp, data=ToothGrowth)
+  
+dose1 <- ToothGrowth[ToothGrowth$dose==1,]
+  t.test(dose1$len ~ dose1$supp, data=ToothGrowth)
+
+dose2 <- ToothGrowth[ToothGrowth$dose==2,]
+  t.test(dose2$len ~ dose2$supp, data=ToothGrowth)
+```
+
+From the results we can see that for the .5 and 1 dose levels we can reject the null and conclude that there is a difference in tooth growth depending on which supplement is used as the p value is less than .05 and the confidence interval does not contain 0.  For the 2 dose level, we accept the null and conclude that at this dose level there is no difference in tooth length depending on the supplement used as the p value is greater than .05 and the confidence interval contains 0. 
+
+Let's also compare len by dose.  You can only compare two levels so we will subset the data set to only include two levels in the dose column and then perform the t test. Our null hypothesis will be Ho: There is no difference in tooth growth depending on the dose amount.(See Appendix: ttest len by dose for output)
+
+```{r len by dose, eval=FALSE}
+len1<- subset(ToothGrowth, dose==0.5 | dose == 1 )
+t.test(len1$len ~ len1$dose, data = ToothGrowth)
+
+len2<- subset(ToothGrowth, dose==0.5 | dose == 2 )
+t.test(len2$len ~ len2$dose, data = ToothGrowth)
+
+len3<- subset(ToothGrowth, dose==1 | dose == 2 )
+t.test(len3$len ~ len3$dose, data = ToothGrowth)
+```
+
+From the results we can see that for all three tests the p value is very small (less than .05) and the confidence interval does not contain 0.  Therefore we reject the null hypothesis and conclude that tooth growth is affected by the dose amount.
+
+##Conclusions and Assumptions
+Conclusions:
+1. Tooth growth is not affected by the type of supplement used.
+2. At the specific dose level of .5 and 1 tooth growth is affected by the the type of supplement used. OJ has greater affect.
+3.Tooth growth is affected by the dose level.  An increase in dose increases tooth growth.
+
+Assumptions:
+1. The data are iid normal
+2. Equal Variance
+
+##Appendix
+###PLOT 1
+```{r appendix ex plot, echo=FALSE}
+library(ggplot2)
+ggplot(aes(x=supp, y=len), data=ToothGrowth) + geom_boxplot(aes(fill=supp))
+```
+
+###Plot2
+```{r appendix ex plot2, echo=FALSE}
+library(ggplot2)
+ggplot(aes(x=as.factor(dose), y=len), data=ToothGrowth) + geom_boxplot(aes(fill=dose)) 
+```
+
+###ttest len by supp output
+```{r appendix ttest len by supp, echo=FALSE}
+t.test(len~supp,data=ToothGrowth)
+```
+###ttest len by supp at each dose level output
+```{r appendix lenbysupp at each dose, echo=FALSE}
+dose.5 <- ToothGrowth[ToothGrowth$dose==0.5,]
+  t.test(dose.5$len ~ dose.5$supp, data=ToothGrowth)
+  
+dose1 <- ToothGrowth[ToothGrowth$dose==1,]
+  t.test(dose1$len ~ dose1$supp, data=ToothGrowth)
+
+dose2 <- ToothGrowth[ToothGrowth$dose==2,]
+  t.test(dose2$len ~ dose2$supp, data=ToothGrowth)
+```
+###ttest len by dose output
+```{r appendix len by dose, echo=FALSE}
+len1<- subset(ToothGrowth, dose==0.5 | dose == 1 )
+t.test(len1$len ~ len1$dose, data = ToothGrowth)
+
+len2<- subset(ToothGrowth, dose==0.5 | dose == 2 )
+t.test(len2$len ~ len2$dose, data = ToothGrowth)
+
+len3<- subset(ToothGrowth, dose==1 | dose == 2 )
+t.test(len3$len ~ len3$dose, data = ToothGrowth)
+```
